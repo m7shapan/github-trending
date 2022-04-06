@@ -55,6 +55,9 @@ func tweet(client *twitter.Client, items []Item) error {
 	}
 
 	for i, item := range items {
+		// tweet max length is 280 characters - (5 for newlines + 1 for hashtag and tweet number + repository name length + link length)
+		item.Description = truncateText(item.Description, 280-(5+4+len(item.Repo)+len(item.Link)))
+
 		tweetBody := fmt.Sprintf("#%d\n\n#%s\n%s\n%s\n",
 			i+1,
 			item.Repo,
@@ -74,4 +77,12 @@ func tweet(client *twitter.Client, items []Item) error {
 	}
 
 	return nil
+}
+
+func truncateText(text string, maxLength int) string {
+	if len(text) > maxLength {
+		return text[:maxLength-3] + "..."
+	}
+
+	return text
 }
