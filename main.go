@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
 	items, err := githubTrending("go", "daily")
 	if err != nil {
 		log.Fatal(err)
