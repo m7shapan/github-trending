@@ -13,6 +13,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if len(items) == 0 {
+		log.Fatal("no items found")
+	}
+
 	creds := Credentials{
 		AccessToken:       os.Getenv("TWITTER_ACCESS_TOKEN"),
 		AccessTokenSecret: os.Getenv("TWITTER_ACCESS_TOKEN_SECRET"),
