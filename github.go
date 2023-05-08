@@ -5,8 +5,14 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/PuerkitoBio/goquery"
 )
+
+const itemsHTMLPath = ".application-main main article.Box-row"
+
+var ErrUnexpectedStatusCode = errors.New("unexpected status code")
 
 type Item struct {
 	User        string
@@ -18,24 +24,32 @@ type Item struct {
 func githubTrending(language, timeRange string) ([]Item, error) {
 	res, err := http.Get(fmt.Sprintf("https://github.com/trending/%s?since=%s", language, timeRange))
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to get trending")
 	}
+
 	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
+
+	if res.StatusCode != http.StatusOK {
+		return nil, errors.Wrap(ErrUnexpectedStatusCode, res.Status)
 	}
 
 	// Load the HTML document
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to parse response body")
 	}
 
+	// Find the review items
+	items := getItems(doc)
+
+	return items, nil
+}
+
+func getItems(doc *goquery.Document) []Item {
 	var items []Item
 
-	// Find the review items
-	doc.Find(".application-main main .Box-row").Each(func(i int, s *goquery.Selection) {
-		title, found := s.Find("h1 a").Attr("href")
+	doc.Find(itemsHTMLPath).Each(func(i int, s *goquery.Selection) {
+		title, found := s.Find("h2 a").Attr("href")
 		description := s.Find("p").Text()
 
 		if found {
@@ -54,5 +68,5 @@ func githubTrending(language, timeRange string) ([]Item, error) {
 		}
 	})
 
-	return items, nil
+	return items
 }

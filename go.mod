@@ -6,6 +6,7 @@ require (
 	github.com/PuerkitoBio/goquery v1.8.0
 	github.com/dghubble/go-twitter v0.0.0-20220319054129-995614af6514
 	github.com/dghubble/oauth1 v0.7.1
+	github.com/pkg/errors v0.9.1
 )
 
 require (

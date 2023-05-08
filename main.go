@@ -6,7 +6,6 @@ import (
 )
 
 func main() {
-
 	items, err := githubTrending("go", "daily")
 	if err != nil {
 		log.Fatal(err)
